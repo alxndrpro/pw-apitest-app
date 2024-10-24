@@ -1,4 +1,5 @@
 import {test, expect, request} from '@playwright/test';
+// @ts-ignore
 import tags from '../test-data/tags.json'
 
 test.beforeEach(async ({page}) => {
@@ -37,14 +38,6 @@ test('has tags', async ({page}) => {
 })
 
 test('delete article', async ({page, request}) => {
-    const response = await request.post('https://conduit-api.bondaracademy.com/api/users/login', {
-        data: {
-            "user": {"email": "pwtestuser@test.com", "password": "pwtest"}
-        }
-    })
-    const responseBody = await response.json()
-    const accessToken = responseBody.user.token
-
     const articleResponse = await request.post('https://conduit-api.bondaracademy.com/api/articles', {
         data: {
             "article": {
@@ -53,9 +46,6 @@ test('delete article', async ({page, request}) => {
                 "body": "This is an article's body",
                 "tagList": []
             }
-        },
-        headers: {
-            Authorization: `Token ${accessToken}`
         }
     })
 
@@ -86,19 +76,7 @@ test('Create article', async ({page, request}) => {
 
     await expect(page.locator('app-article-list h1').first()).toContainText("Playwright course")
 
-    const response = await request.post('https://conduit-api.bondaracademy.com/api/users/login', {
-        data: {
-            "user": {"email": "pwtestuser@test.com", "password": "pwtest"}
-        }
-    })
-    const responseBody = await response.json()
-    const accessToken = responseBody.user.token
-
-    const deleteArticleResponse = await request.delete(`https://conduit-api.bondaracademy.com/api/articles/${slugId}`, {
-        headers: {
-            Authorization: `Token ${accessToken}`
-        }
-    })
+    const deleteArticleResponse = await request.delete(`https://conduit-api.bondaracademy.com/api/articles/${slugId}`)
 
     expect(deleteArticleResponse.status()).toEqual(204)
 
